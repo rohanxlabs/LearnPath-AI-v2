@@ -12,26 +12,47 @@ const PORT = 3000;
 
 app.use(express.json());
 
-// Robust retry utility for managing 503/429 transient Gemini API rate limits/errors
-async function callWithRetry<T>(fn: () => Promise<T>, retries = 3, delay = 1000): Promise<T> {
-  try {
-    return await fn();
-  } catch (error: any) {
-    const errorStr = (error.message || '').toLowerCase();
-    const isTransient = errorStr.includes('503') || 
-                        errorStr.includes('429') || 
-                        errorStr.includes('unavailable') || 
-                        errorStr.includes('demand') || 
-                        errorStr.includes('rate limit') ||
-                        errorStr.includes('resource_exhausted') ||
-                        error.status === 'UNAVAILABLE';
-    if (retries > 0 && isTransient) {
-      console.warn(`[Gemini API] Request hit transient issue. Retrying in ${delay}ms... (${retries} left). Error: ${error.message}`);
-      await new Promise(resolve => setTimeout(resolve, delay));
-      return callWithRetry(fn, retries - 1, delay * 1.5);
+// High-reliability multi-model fallback and recovery utility
+async function callWithModelFallbackAndRetry<T>(
+  fn: (model: string) => Promise<T>,
+  models = ['gemini-2.5-flash', 'gemini-1.5-flash', 'gemini-3.5-flash'],
+  retriesPerModel = 2,
+  delay = 1000
+): Promise<T> {
+  let lastError: any = null;
+  
+  for (let i = 0; i < models.length; i++) {
+    const model = models[i];
+    let attempt = 0;
+    while (attempt <= retriesPerModel) {
+      try {
+        console.log(`[Gemini API] Dispatching content generation request using model "${model}" (attempt ${attempt + 1}/${retriesPerModel + 1})...`);
+        return await fn(model);
+      } catch (error: any) {
+        lastError = error;
+        const errorStr = (error.message || '').toLowerCase();
+        const isTransient = errorStr.includes('503') || 
+                            errorStr.includes('429') || 
+                            errorStr.includes('unavailable') || 
+                            errorStr.includes('demand') || 
+                            errorStr.includes('rate limit') ||
+                            errorStr.includes('resource_exhausted') ||
+                            error.status === 'UNAVAILABLE';
+        
+        if (isTransient && attempt < retriesPerModel) {
+          const currentDelay = delay * Math.pow(1.5, attempt);
+          console.warn(`[Gemini API] Model "${model}" hit transient issue: "${error.message}". Retrying in ${currentDelay}ms... (${retriesPerModel - attempt} left)`);
+          await new Promise(resolve => setTimeout(resolve, currentDelay));
+          attempt++;
+        } else {
+          console.warn(`[Gemini API] Model "${model}" failed/exhausted. Trying next fallback model if available... Error: ${error.message}`);
+          break; // break the inner loop to move to the next model in the outer list
+        }
+      }
     }
-    throw error;
   }
+  
+  throw lastError || new Error("All Gemini fallback models failed.");
 }
 
 // Lazy-initialized Gemini client helper
@@ -147,8 +168,8 @@ Provide interesting, highly tailored lessons and valid questions. Ensure the out
     }
 
     const ai = getGeminiClient();
-    const response = await callWithRetry(() => ai.models.generateContent({
-      model: 'gemini-3.5-flash',
+    const response = await callWithModelFallbackAndRetry((selectedModel) => ai.models.generateContent({
+      model: selectedModel,
       contents: prompt,
       config: {
         responseMimeType: 'application/json',
@@ -358,8 +379,8 @@ Guidelines:
 4. Keep the tone helpful, professional, and exciting like a world-class university TA.
 `;
 
-    const result = await callWithRetry(() => ai.models.generateContent({
-      model: 'gemini-3.5-flash',
+    const result = await callWithModelFallbackAndRetry((selectedModel) => ai.models.generateContent({
+      model: selectedModel,
       contents: contents,
       config: {
         systemInstruction,
@@ -437,8 +458,8 @@ Concoct your response as a valid JSON object matching this structure:
     }
 
     const ai = getGeminiClient();
-    const response = await callWithRetry(() => ai.models.generateContent({
-      model: 'gemini-3.5-flash',
+    const response = await callWithModelFallbackAndRetry((selectedModel) => ai.models.generateContent({
+      model: selectedModel,
       contents: prompt,
       config: {
         responseMimeType: 'application/json',
@@ -504,8 +525,8 @@ Your response must be a JSON array of exactly 3 objects matching this schema:
     }
 
     const ai = getGeminiClient();
-    const response = await callWithRetry(() => ai.models.generateContent({
-      model: 'gemini-3.5-flash',
+    const response = await callWithModelFallbackAndRetry((selectedModel) => ai.models.generateContent({
+      model: selectedModel,
       contents: prompt,
       config: {
         responseMimeType: 'application/json',
@@ -586,8 +607,8 @@ Output must be a JSON array of questions conforming to this exact structure:
     }
 
     const ai = getGeminiClient();
-    const response = await callWithRetry(() => ai.models.generateContent({
-      model: 'gemini-3.5-flash',
+    const response = await callWithModelFallbackAndRetry((selectedModel) => ai.models.generateContent({
+      model: selectedModel,
       contents: prompt,
       config: {
         responseMimeType: 'application/json',
