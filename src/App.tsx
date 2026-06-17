@@ -6,7 +6,7 @@ import { ProgressCard, StatsCard, AchievementCard, NotificationCard, AIRecommend
 import { RoadmapTree } from './components/RoadmapTree';
 import { RoadmapOverview } from './components/RoadmapOverview';
 import { MentorChatView } from './components/MentorChatView';
-import { AnalyticsView, ProfileView, AdminView } from './components/TabsScreen';
+import { AnalyticsView, ProfileView } from './components/TabsScreen';
 import { LessonPlayView } from './components/LessonPlayView';
 import { loadLocalStorage, saveLocalStorage, DEV_BYPASS_AUTH } from './mockData';
 
@@ -636,15 +636,6 @@ export default function App() {
           />
         );
 
-      case 'admin':
-        return (
-          <AdminView
-            onSeedRoadmap={handleSeedRoadmap}
-            onClearCache={handleClearCache}
-            apiCallsCounter={apiCallsCounter}
-          />
-        );
-
       default:
         return <p className="text-xs text-zinc-400">Section placeholder.</p>;
     }
@@ -812,21 +803,6 @@ export default function App() {
           renderTabContent()
         )}
       </main>
-
-      {/* Simple admin panel console floating shortcut tab trigger (highly interactive!) */}
-      <div className="fixed bottom-20 right-4 z-40">
-        <button
-          onClick={() => {
-            setActiveTab(activeTab === 'admin' ? 'home' : 'admin');
-            setActiveLesson(null);
-          }}
-          className="p-3 rounded-full bg-[#111111] border border-white/10 text-zinc-400 hover:text-white shadow-xl hover:scale-105 transition-all flex items-center justify-center cursor-pointer"
-          title="Operations Admin Console"
-          id="btn-trigger-admin-tab"
-        >
-          <Terminal className="w-5 h-5 text-purple-400 animate-pulse" />
-        </button>
-      </div>
 
       {/* 3. Bottom bar Navigation */}
       <BottomNavigation
