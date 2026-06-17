@@ -486,7 +486,7 @@ export default function App() {
 
               {/* Right span: learning concentric skills card */}
               <div className="col-span-1">
-                <LearningScoreCard />
+                <LearningScoreCard profile={profile} />
               </div>
             </div>
           </div>

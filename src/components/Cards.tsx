@@ -364,12 +364,22 @@ export function AIRecommendationCard({ recommendation, onLaunch }: AIRecommendat
   );
 }
 
-export function LearningScoreCard() {
+interface LearningScoreCardProps {
+  profile?: {
+    xp: number;
+    level: number;
+  };
+}
+
+export function LearningScoreCard({ profile }: LearningScoreCardProps) {
+  // Use user's current XP to calculate skills, making them go up as XP increases!
+  const currentXp = profile?.xp || 1840;
+  
   const skills = [
-    { name: 'Python Engineering', score: 85, color: '#a855f7' },
-    { name: 'Neural Mechanics', score: 70, color: '#3b82f6' },
-    { name: 'Logic Prompting', score: 92, color: '#10b981' },
-    { name: 'Systems RAG', score: 45, color: '#f59e0b' },
+    { name: 'Python Engineering', score: Math.min(100, Math.floor(45 + currentXp / 50)), color: '#a855f7' },
+    { name: 'Neural Mechanics', score: Math.min(100, Math.floor(35 + currentXp / 65)), color: '#3b82f6' },
+    { name: 'Logic Prompting', score: Math.min(100, Math.floor(55 + currentXp / 55)), color: '#10b981' },
+    { name: 'Systems RAG', score: Math.min(100, Math.floor(20 + currentXp / 80)), color: '#f59e0b' },
   ];
 
   return (
@@ -377,7 +387,7 @@ export function LearningScoreCard() {
       <div className="flex items-center justify-between gap-2.5 mb-4">
         <div className="flex items-center gap-2">
           <BrainCircuit className="w-5 h-5 text-purple-400" />
-          <h4 className="font-display font-semibold text-sm text-white">Syllabus Skill Mastery</h4>
+          <h4 className="font-display font-semibold text-sm text-white font-sans">Syllabus Skill Mastery</h4>
         </div>
         <span className="text-xs text-zinc-400 font-semibold flex items-center gap-1">
           <BarChart className="w-3.5 h-3.5" /> Calculated AI Metrics
@@ -387,7 +397,7 @@ export function LearningScoreCard() {
       <div className="space-y-4">
         {skills.map((skill) => (
           <div key={skill.name}>
-            <div className="flex justify-between items-center text-xs mb-1.5">
+            <div className="flex justify-between items-center text-xs mb-1.5 font-sans">
               <span className="font-medium text-zinc-300">{skill.name}</span>
               <span className="font-bold font-mono text-white" style={{ color: skill.color }}>
                 {skill.score}%
@@ -395,7 +405,7 @@ export function LearningScoreCard() {
             </div>
             <div className="w-full h-2 rounded-full bg-white/5 overflow-hidden border border-white/5">
               <div
-                className="h-full rounded-full transition-all duration-500 ease-out"
+                className="h-full rounded-full transition-all duration-[800ms] ease-out"
                 style={{
                   width: `${skill.score}%`,
                   backgroundColor: skill.color,

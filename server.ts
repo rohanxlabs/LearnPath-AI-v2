@@ -15,7 +15,7 @@ app.use(express.json());
 // High-reliability multi-model fallback and recovery utility
 async function callWithModelFallbackAndRetry<T>(
   fn: (model: string) => Promise<T>,
-  models = ['gemini-2.5-flash', 'gemini-1.5-flash', 'gemini-3.5-flash'],
+  models = ['gemini-2.5-flash', 'gemini-2.5-pro', 'gemini-3.5-flash', 'gemini-flash-latest', 'gemini-3.1-flash-lite'],
   retriesPerModel = 2,
   delay = 1000
 ): Promise<T> {
@@ -31,21 +31,32 @@ async function callWithModelFallbackAndRetry<T>(
       } catch (error: any) {
         lastError = error;
         const errorStr = (error.message || '').toLowerCase();
+        
+        // If it is a quota limit or rate exhaustion (e.g. 429), fall back to the next model IMMEDIATELY!
+        const isQuotaExceeded = errorStr.includes('429') || 
+                                errorStr.includes('quota') || 
+                                errorStr.includes('resource_exhausted') || 
+                                errorStr.includes('exhausted') ||
+                                errorStr.includes('rate_limit') ||
+                                errorStr.includes('rate limit');
+                                
+        if (isQuotaExceeded) {
+          console.log(`[Gemini API Info] Model "${model}" hit quota limit / rate exhaustion (429). Bypassing further retries and falling back to the next model immediately...`);
+          break; // break the inner loop to move to the next model in the outer list
+        }
+
         const isTransient = errorStr.includes('503') || 
-                            errorStr.includes('429') || 
                             errorStr.includes('unavailable') || 
                             errorStr.includes('demand') || 
-                            errorStr.includes('rate limit') ||
-                            errorStr.includes('resource_exhausted') ||
                             error.status === 'UNAVAILABLE';
         
         if (isTransient && attempt < retriesPerModel) {
           const currentDelay = delay * Math.pow(1.5, attempt);
-          console.warn(`[Gemini API] Model "${model}" hit transient issue: "${error.message}". Retrying in ${currentDelay}ms... (${retriesPerModel - attempt} left)`);
+          console.log(`[Gemini API Info] Model "${model}" hit transient issue: "${error.message}". Retrying in ${currentDelay}ms... (${retriesPerModel - attempt} left)`);
           await new Promise(resolve => setTimeout(resolve, currentDelay));
           attempt++;
         } else {
-          console.warn(`[Gemini API] Model "${model}" failed/exhausted. Trying next fallback model if available... Error: ${error.message}`);
+          console.log(`[Gemini API Info] Model "${model}" failed/exhausted. Trying next fallback model if available... Status info: ${error.message}`);
           break; // break the inner loop to move to the next model in the outer list
         }
       }
