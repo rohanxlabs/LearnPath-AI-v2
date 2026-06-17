@@ -12,6 +12,28 @@ const PORT = 3000;
 
 app.use(express.json());
 
+// Robust retry utility for managing 503/429 transient Gemini API rate limits/errors
+async function callWithRetry<T>(fn: () => Promise<T>, retries = 3, delay = 1000): Promise<T> {
+  try {
+    return await fn();
+  } catch (error: any) {
+    const errorStr = (error.message || '').toLowerCase();
+    const isTransient = errorStr.includes('503') || 
+                        errorStr.includes('429') || 
+                        errorStr.includes('unavailable') || 
+                        errorStr.includes('demand') || 
+                        errorStr.includes('rate limit') ||
+                        errorStr.includes('resource_exhausted') ||
+                        error.status === 'UNAVAILABLE';
+    if (retries > 0 && isTransient) {
+      console.warn(`[Gemini API] Request hit transient issue. Retrying in ${delay}ms... (${retries} left). Error: ${error.message}`);
+      await new Promise(resolve => setTimeout(resolve, delay));
+      return callWithRetry(fn, retries - 1, delay * 1.5);
+    }
+    throw error;
+  }
+}
+
 // Lazy-initialized Gemini client helper
 let geminiClient: GoogleGenAI | null = null;
 function getGeminiClient(): GoogleGenAI {
@@ -125,20 +147,27 @@ Provide interesting, highly tailored lessons and valid questions. Ensure the out
     }
 
     const ai = getGeminiClient();
-    const response = await ai.models.generateContent({
+    const response = await callWithRetry(() => ai.models.generateContent({
       model: 'gemini-3.5-flash',
       contents: prompt,
       config: {
         responseMimeType: 'application/json',
         temperature: 0.7
       }
-    });
+    }));
 
     const parsedData = JSON.parse(response.text || '{}');
     return res.json(parsedData);
 
   } catch (error: any) {
-    console.error('Gemini Roadmap Generation Error, implementing safe custom backup template:', error.message);
+    let readableError = error.message || String(error);
+    try {
+      const parsedError = JSON.parse(error.message);
+      if (parsedError?.error?.message) {
+        readableError = parsedError.error.message;
+      }
+    } catch (_) {}
+    console.error('Gemini Roadmap Generation Error, implementing safe custom backup template:', readableError);
     
     // Fallback roadmap generation based on goal
     const goalTitle = goal.length > 40 ? goal.substring(0, 37) + '...' : goal;
@@ -329,20 +358,27 @@ Guidelines:
 4. Keep the tone helpful, professional, and exciting like a world-class university TA.
 `;
 
-    const result = await ai.models.generateContent({
+    const result = await callWithRetry(() => ai.models.generateContent({
       model: 'gemini-3.5-flash',
       contents: contents,
       config: {
         systemInstruction,
         temperature: 0.7
       }
-    });
+    }));
 
     const reply = result.text || "I was unable to synthesize a response. Let me try that again.";
     return res.json({ text: reply });
 
   } catch (error: any) {
-    console.error('Gemini Chat Error:', error.message);
+    let readableError = error.message || String(error);
+    try {
+      const parsedError = JSON.parse(error.message);
+      if (parsedError?.error?.message) {
+        readableError = parsedError.error.message;
+      }
+    } catch (_) {}
+    console.error('Gemini Chat Error:', readableError);
     
     // Fallback offline dynamic reply
     const lowercaseMessage = message.toLowerCase();
@@ -401,20 +437,27 @@ Concoct your response as a valid JSON object matching this structure:
     }
 
     const ai = getGeminiClient();
-    const response = await ai.models.generateContent({
+    const response = await callWithRetry(() => ai.models.generateContent({
       model: 'gemini-3.5-flash',
       contents: prompt,
       config: {
         responseMimeType: 'application/json',
         temperature: 0.3
       }
-    });
+    }));
 
     const parsed = JSON.parse(response.text || '{}');
     return res.json(parsed);
 
   } catch (error: any) {
-    console.error('Gemini Code Analysis fallback activation:', error.message);
+    let readableError = error.message || String(error);
+    try {
+      const parsedError = JSON.parse(error.message);
+      if (parsedError?.error?.message) {
+        readableError = parsedError.error.message;
+      }
+    } catch (_) {}
+    console.error('Gemini Code Analysis fallback activation:', readableError);
     
     // Standard offline code validation success logic
     const score = passesLocalValidation;
@@ -461,20 +504,27 @@ Your response must be a JSON array of exactly 3 objects matching this schema:
     }
 
     const ai = getGeminiClient();
-    const response = await ai.models.generateContent({
+    const response = await callWithRetry(() => ai.models.generateContent({
       model: 'gemini-3.5-flash',
       contents: prompt,
       config: {
         responseMimeType: 'application/json',
         temperature: 0.8
       }
-    });
+    }));
 
     const parsed = JSON.parse(response.text || '[]');
     return res.json(parsed);
 
   } catch (error: any) {
-    console.error('Gemini recommendations fallback:', error.message);
+    let readableError = error.message || String(error);
+    try {
+      const parsedError = JSON.parse(error.message);
+      if (parsedError?.error?.message) {
+        readableError = parsedError.error.message;
+      }
+    } catch (_) {}
+    console.error('Gemini recommendations fallback:', readableError);
     
     return res.json([
       {
@@ -536,20 +586,27 @@ Output must be a JSON array of questions conforming to this exact structure:
     }
 
     const ai = getGeminiClient();
-    const response = await ai.models.generateContent({
+    const response = await callWithRetry(() => ai.models.generateContent({
       model: 'gemini-3.5-flash',
       contents: prompt,
       config: {
         responseMimeType: 'application/json',
         temperature: 0.7
       }
-    });
+    }));
 
     const parsed = JSON.parse(response.text || '[]');
     return res.json(parsed);
 
   } catch (error: any) {
-    console.error('Gemini Dynamic Quiz error fallback:', error.message);
+    let readableError = error.message || String(error);
+    try {
+      const parsedError = JSON.parse(error.message);
+      if (parsedError?.error?.message) {
+        readableError = parsedError.error.message;
+      }
+    } catch (_) {}
+    console.error('Gemini Dynamic Quiz error fallback:', readableError);
     
     return res.json([
       {
