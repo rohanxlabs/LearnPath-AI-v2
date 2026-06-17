@@ -108,11 +108,11 @@ export function MentorChatView({ chats, onSendMessage, isGenerating, onSelectAct
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-10rem)] md:h-[calc(100vh-8.5rem)] rounded-3xl border border-white/5 bg-[#111111] shadow-2xl relative overflow-hidden">
+    <div className="flex flex-col h-[calc(100vh-10rem)] md:h-[calc(100vh-8.5rem)] rounded-3xl glass-card border border-white/5 shadow-2xl relative overflow-hidden">
       {/* Upper info panel */}
-      <div className="px-4 py-3 border-b border-white/5 flex items-center justify-between bg-zinc-950/20">
+      <div className="px-4 py-3 border-b border-white/5 flex items-center justify-between bg-zinc-950/25 backdrop-blur-md">
         <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-500 to-blue-600 text-white flex items-center justify-center shadow-[0_0_12px_rgba(168,85,247,0.3)]">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-purple-500 to-blue-650 text-white flex items-center justify-center shadow-[0_4px_12px_rgba(168,85,247,0.35)]">
             <Bot className="w-4.5 h-4.5 animate-pulse" />
           </div>
           <div>
@@ -120,12 +120,12 @@ export function MentorChatView({ chats, onSendMessage, isGenerating, onSelectAct
               <span>LearnPath AI Mentor</span>
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
             </h4>
-            <p className="text-[10px] text-zinc-450 dark:text-zinc-400 light:text-slate-500 font-mono">Gemini 3.5 Flash Model active</p>
+            <p className="text-[10px] text-zinc-400 font-mono">Gemini 3.5 Flash Model active</p>
           </div>
         </div>
 
         <div className="flex items-center gap-1.5">
-          <span className="text-[10px] text-zinc-500 bg-zinc-900 border border-zinc-800 px-2 py-0.5 rounded font-bold uppercase tracking-wider hidden sm:block">Offline Proxy Safety Enabled</span>
+          <span className="text-[10px] text-zinc-550 bg-white/5 border border-white/10 px-2 py-0.5 rounded font-bold uppercase tracking-wider hidden sm:block">Offline Proxy Safety Enabled</span>
         </div>
       </div>
 
@@ -140,17 +140,17 @@ export function MentorChatView({ chats, onSendMessage, isGenerating, onSelectAct
             >
               <div className={`p-1.5 h-8 w-8 rounded-xl flex items-center justify-center flex-shrink-0 border ${
                 isAI
-                  ? 'bg-gradient-to-br from-purple-500/10 to-blue-600/10 border-purple-500/20 text-purple-400'
-                  : 'bg-white/5 border-white/5 text-zinc-300'
+                  ? 'bg-purple-500/10 border-purple-500/20 text-purple-400'
+                  : 'bg-blue-500/10 border-blue-500/20 text-blue-400'
               }`}>
                 {isAI ? <Bot className="w-4.5 h-4.5" /> : <Terminal className="w-4.5 h-4.5" />}
               </div>
 
               <div className="space-y-1">
-                <div className={`p-4 rounded-2xl text-xs select-text ${
+                <div className={`p-4 rounded-2xl text-xs select-text leading-relaxed ${
                   isAI
-                    ? 'bg-white/[0.02]/95 border border-white/5 text-zinc-200 shadow-sm'
-                    : 'bg-gradient-to-br from-purple-500 to-blue-600 text-white shadow-md'
+                    ? 'glass-card glass-card-purple border-purple-500/10 text-zinc-100 shadow-sm'
+                    : 'glass-card glass-card-blue border-blue-500/15 text-white font-medium shadow-md'
                 }`}>
                   {formatMessageText(ch.text)}
                 </div>
@@ -166,13 +166,13 @@ export function MentorChatView({ chats, onSendMessage, isGenerating, onSelectAct
         {isGenerating && (
           <div className="flex gap-3 mr-auto max-w-[85%]">
             <div className="p-1.5 h-8 w-8 rounded-xl flex items-center justify-center bg-white/5 border border-white/5 text-purple-400">
-              <Bot className="w-4.5 h-4.5 animate-spin-slow" />
+              <Bot className="w-4.5 h-4.5 animate-spin" />
             </div>
-            <div className="p-4 rounded-2xl bg-[#111111] border border-white/5 flex items-center gap-1 text-zinc-400">
+            <div className="p-4 rounded-2xl glass-card glass-card-purple border border-purple-500/10 flex items-center gap-1 text-zinc-400">
               <div className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-bounce" style={{ animationDelay: '0ms' }} />
               <div className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-bounce" style={{ animationDelay: '150ms' }} />
               <div className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-bounce" style={{ animationDelay: '300ms' }} />
-              <span className="text-[10px] text-zinc-500 font-medium ml-2 animate-pulse">Formulating AI feedback...</span>
+              <span className="text-[10px] text-zinc-400 font-medium ml-2 animate-pulse">Formulating AI feedback...</span>
             </div>
           </div>
         )}
@@ -182,8 +182,8 @@ export function MentorChatView({ chats, onSendMessage, isGenerating, onSelectAct
 
       {/* Suggested fast click starting prompt bubbles */}
       {chats.length <= 1 && (
-        <div className="p-4 border-t border-white/5 bg-white/[0.01]">
-          <label className="block text-[9px] font-bold text-zinc-500 uppercase tracking-widest mb-2 px-1">SUGGESTED DISCUSSIONS</label>
+        <div className="p-4 border-t border-white/5 bg-zinc-950/20 backdrop-blur-md">
+          <label className="block text-[9px] font-bold text-zinc-400 uppercase tracking-widest mb-2 px-1">SUGGESTED DISCUSSIONS</label>
           <div className="grid grid-cols-2 gap-2">
             {suggestedPrompts.map((p) => {
               const Icon = p.icon;
@@ -203,7 +203,7 @@ export function MentorChatView({ chats, onSendMessage, isGenerating, onSelectAct
       )}
 
       {/* Side drawer controls sheets for prompt helpers */}
-      <div className="p-3 border-t border-white/5 bg-white/[0.01] flex gap-1.5 overflow-x-auto scrollbar-none">
+      <div className="p-3 border-t border-white/5 bg-zinc-950/10 backdrop-blur-sm flex gap-1.5 overflow-x-auto scrollbar-none">
         {helperActions.map((act) => (
           <button
             key={act.label}
@@ -215,10 +215,10 @@ export function MentorChatView({ chats, onSendMessage, isGenerating, onSelectAct
         ))}
       </div>
 
-      {/* Active input form bar */}
-      <form onSubmit={handleSubmit} className="p-3 bg-[#111111] border-t border-white/5">
+      {/* Active input form bar with frosted background */}
+      <form onSubmit={handleSubmit} className="p-3 bg-zinc-950/45 border-t border-white/5 backdrop-blur-md">
         {attachmentName && (
-          <div className="mb-2 py-1 px-2.5 rounded border border-purple-500/30 bg-purple-500/5 flex items-center justify-between max-w-sm">
+          <div className="mb-2 py-1 px-2.5 rounded border border-purple-500/30 bg-purple-500/10 flex items-center justify-between max-w-sm">
             <span className="text-[10px] text-zinc-350 select-none flex items-center gap-1.5">
               <Paperclip className="w-3 h-3 text-purple-400" />
               <span>Loaded Document: <strong className="text-purple-300">{attachmentName}</strong></span>
@@ -226,7 +226,7 @@ export function MentorChatView({ chats, onSendMessage, isGenerating, onSelectAct
             <button
               type="button"
               onClick={() => setAttachmentName(null)}
-              className="text-[9px] text-red-400 hover:text-red-500 font-bold"
+              className="text-[9px] text-red-450 hover:text-red-500 font-semibold"
             >
               Remove
             </button>
@@ -249,7 +249,7 @@ export function MentorChatView({ chats, onSendMessage, isGenerating, onSelectAct
             onClick={toggleVoice}
             className={`p-2.5 rounded-xl transition-all duration-200 cursor-pointer ${
               isVoiceActive
-                ? 'bg-rose-500/20 text-rose-500 border border-rose-500/40 animate-pulse'
+                ? 'bg-rose-500/20 text-rose-400 border border-rose-500/40 animate-pulse'
                 : 'text-zinc-400 hover:text-white hover:bg-white/[0.05]'
             }`}
             title="Toggle Mic Speech"
@@ -263,14 +263,14 @@ export function MentorChatView({ chats, onSendMessage, isGenerating, onSelectAct
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
             placeholder={isVoiceActive ? "Listening..." : "Ask Mentor anything about neural mechanics..."}
-            className="flex-1 px-4 py-2.5 bg-white/[0.02]/85 border border-white/5 text-xs rounded-xl text-white focus:outline-hidden focus:border-purple-500/50"
+            className="flex-1 px-4 py-2.5 bg-black/40 border border-white/5 text-xs rounded-xl text-white focus:outline-hidden focus:border-purple-500/50"
             disabled={isGenerating || isVoiceActive}
           />
 
           <button
             type="submit"
             disabled={!inputText.trim() || isGenerating}
-            className="p-2.5 rounded-xl text-white bg-gradient-to-br from-purple-500 to-blue-600 hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
+            className="p-2.5 rounded-xl text-white bg-gradient-to-tr from-purple-500 to-blue-600 hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer shadow-md"
             id="btn-chat-submit"
           >
             <Send className="w-4 h-4" />

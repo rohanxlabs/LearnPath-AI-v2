@@ -23,22 +23,22 @@ export function MobileHeader({
   const unreadCount = notifications.filter(n => !n.read).length;
 
   return (
-    <header className="sticky top-0 z-40 flex items-center justify-between h-16 px-4 md:px-6 bg-[#111111]/80 backdrop-blur-md border-b border-white/5 transition-colors duration-300">
+    <header className="sticky top-0 z-40 flex items-center justify-between h-16 px-4 md:px-6 bg-white/80 dark:bg-[#111111]/80 backdrop-blur-md border-b border-zinc-200 dark:border-white/5 transition-colors duration-300">
       <div className="flex items-center gap-3">
         <button
           onClick={onOpenDrawer}
-          className="p-2 -ml-1 text-zinc-400 hover:text-white rounded-lg hover:bg-white/5 transition-colors cursor-pointer"
+          className="p-2 -ml-1 text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white rounded-lg hover:bg-zinc-100 dark:hover:bg-white/5 transition-colors cursor-pointer"
           aria-label="Open sidebar"
           id="btn-nav-sidebar"
         >
-          <Menu className="w-5 h-5 text-zinc-300" />
+          <Menu className="w-5 h-5 text-zinc-600 dark:text-zinc-300" />
         </button>
         <div className="flex items-center gap-2 cursor-pointer" onClick={() => onTabChange('home')}>
           <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-purple-500 to-blue-600 flex items-center justify-center shadow-[0_0_15px_rgba(168,85,247,0.3)]">
             <Sparkles className="w-4 h-4 text-white animate-pulse" />
           </div>
-          <span className="font-display font-bold text-lg tracking-tight text-white">
-            LearnPath <span className="text-purple-400">AI</span>
+          <span className="font-display font-bold text-lg tracking-tight text-slate-900 dark:text-white">
+            LearnPath <span className="text-purple-600 dark:text-purple-400 font-extrabold">AI</span>
           </span>
         </div>
       </div>
@@ -50,11 +50,11 @@ export function MobileHeader({
 
         <button
           onClick={onNotificationsClick}
-          className="relative p-2 text-zinc-400 hover:text-white hover:bg-white/5 rounded-full transition-all duration-200"
+          className="relative p-2 text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-white/5 rounded-full transition-all duration-200 cursor-pointer"
           aria-label="View notifications"
           id="btn-nav-notif"
         >
-          <Bell className="w-5 h-5 text-zinc-300" />
+          <Bell className="w-5 h-5 text-zinc-600 dark:text-zinc-300" />
           {unreadCount > 0 && (
             <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 animate-pulse" />
           )}
@@ -62,7 +62,7 @@ export function MobileHeader({
 
         <button
           onClick={() => onTabChange('profile')}
-          className="w-8 h-8 rounded-full overflow-hidden border border-white/10 hover:border-purple-500 transition-all duration-200 flex-shrink-0"
+          className="w-8 h-8 rounded-full overflow-hidden border border-zinc-200 dark:border-white/10 hover:border-purple-600 dark:hover:border-purple-500 transition-all duration-200 flex-shrink-0 cursor-pointer"
         >
           <img
             src={profile.avatar}
@@ -91,8 +91,8 @@ export function BottomNavigation({ activeTab, onTabChange }: BottomNavigationPro
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-[#111111]/95 border-t border-white/5 pb-safe shadow-[0_-10px_20px_rgba(0,0,0,0.3)] backdrop-blur-md transition-all duration-300">
-      <div className="flex justify-around items-center h-16 max-w-lg mx-auto">
+    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white/85 dark:bg-zinc-950/85 border-t border-zinc-200 dark:border-white/5 pb-safe shadow-[0_-10px_35px_rgba(0,0,0,0.05)] dark:shadow-[0_-15px_35px_rgba(0,0,0,0.6)] backdrop-blur-lg transition-all duration-300">
+      <div className="flex justify-around items-center h-16 max-w-xl mx-auto px-4">
         {tabs.map((tab) => {
           const IconComponent = tab.icon;
           const isActive = activeTab === tab.id;
@@ -100,14 +100,18 @@ export function BottomNavigation({ activeTab, onTabChange }: BottomNavigationPro
             <button
               key={tab.id}
               onClick={() => onTabChange(tab.id)}
-              className={`flex flex-col items-center justify-center w-14 h-14 rounded-xl transition-all duration-200 cursor-pointer ${
+              className={`relative flex flex-col items-center justify-center py-1 px-3.5 rounded-2xl transition-all duration-300 cursor-pointer ${
                 isActive
-                  ? 'text-purple-400 font-medium scale-105'
-                  : 'text-zinc-500 hover:text-zinc-350'
+                  ? 'text-zinc-900 dark:text-white font-bold scale-102'
+                  : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200'
               }`}
               id={`nav-tab-${tab.id}`}
             >
-              <IconComponent className={`w-5 h-5 mb-1 ${isActive ? 'stroke-[2.5px] drop-shadow-[0_0_8px_rgba(168,85,247,0.5)]' : 'stroke-[2px]'}`} />
+              {/* Active gradient pill background highlight */}
+              {isActive && (
+                <div className="absolute inset-0 bg-gradient-to-r from-purple-500/15 to-blue-500/15 border border-purple-500/25 rounded-2xl -z-10 animate-[pulse_3s_infinite]" />
+              )}
+              <IconComponent className={`w-4.5 h-4.5 mb-1 ${isActive ? 'stroke-[2.5px] text-purple-600 dark:text-purple-400 dark:drop-shadow-[0_0_8px_rgba(168,85,247,0.5)]' : 'stroke-[2px]'}`} />
               <span className="text-[10px] tracking-wide font-medium">{tab.label}</span>
             </button>
           );
@@ -156,40 +160,40 @@ export function SideDrawer({
       />
 
       {/* Drawer Panel */}
-      <div className="absolute inset-y-0 left-0 max-w-xs w-full bg-[#111111] text-white shadow-2xl flex flex-col transition-transform duration-300 border-r border-white/10">
+      <div className="absolute inset-y-0 left-0 max-w-xs w-full bg-[#f8fafc] dark:bg-[#111111] text-zinc-900 dark:text-white shadow-2xl flex flex-col transition-transform duration-300 border-r border-zinc-250 dark:border-white/10">
         {/* Drawer Header */}
-        <div className="p-5 border-b border-white/5 flex items-center justify-between">
+        <div className="p-5 border-b border-zinc-200 dark:border-white/5 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-purple-500 to-blue-600 flex items-center justify-center">
               <Sparkles className="w-4 h-4 text-white" />
             </div>
-            <span className="font-display font-bold text-lg tracking-tight text-white">
-              LearnPath <span className="text-purple-400">AI</span>
+            <span className="font-display font-bold text-lg tracking-tight text-zinc-900 dark:text-white">
+              LearnPath <span className="text-purple-600 dark:text-purple-400">AI</span>
             </span>
           </div>
           <button
             onClick={onClose}
-            className="p-1 text-zinc-400 hover:text-white rounded-lg hover:bg-white/5"
+            className="p-1 text-zinc-400 hover:text-zinc-650 dark:hover:text-white rounded-lg hover:bg-zinc-200/50 dark:hover:bg-white/5"
             aria-label="Close sidebar"
           >
-            <X className="w-5 h-5 text-zinc-400 hover:text-white" />
+            <X className="w-5 h-5 text-zinc-500 dark:text-zinc-400" />
           </button>
         </div>
 
         {/* Profile preview summary */}
-        <div className="px-5 py-4 border-b border-white/5 bg-white/[0.02]">
+        <div className="px-5 py-4 border-b border-zinc-200 dark:border-white/5 bg-zinc-100/50 dark:bg-white/[0.02]">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full overflow-hidden border border-white/10">
+            <div className="w-10 h-10 rounded-full overflow-hidden border border-zinc-250 dark:border-white/10">
               <img src={profile.avatar} alt="Profile photo" className="w-full h-full object-cover" />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="font-semibold text-sm truncate">{profile.name}</p>
-              <p className="text-xs text-zinc-400 truncate">{profile.email}</p>
+              <p className="font-semibold text-sm text-zinc-900 dark:text-white truncate">{profile.name}</p>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate">{profile.email}</p>
             </div>
           </div>
           <div className="mt-3.5 flex items-center justify-between">
-            <div className="text-xs text-zinc-400">
-              Level <span className="font-bold text-white text-xs bg-white/5 border border-white/10 px-1.5 py-0.5 rounded ml-1">{profile.level}</span>
+            <div className="text-xs text-zinc-650 dark:text-zinc-400">
+              Level <span className="font-bold text-zinc-900 dark:text-white text-xs bg-zinc-205 dark:bg-white/5 border border-zinc-300 dark:border-white/10 px-1.5 py-0.5 rounded ml-1">{profile.level}</span>
             </div>
             <TierBadge isPro={profile.isPro} onClick={onUpgradeClick} />
           </div>
@@ -207,13 +211,13 @@ export function SideDrawer({
                   onTabChange(sec.id);
                   onClose();
                 }}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm text-left font-medium transition-all duration-200 cursor-pointer ${
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm text-left font-semibold transition-all duration-200 cursor-pointer ${
                   isActive
-                    ? 'bg-white/5 text-purple-400 border border-white/10'
-                    : 'text-zinc-400 hover:text-zinc-200 hover:bg-white/5'
+                    ? 'bg-purple-100/70 dark:bg-white/5 text-purple-700 dark:text-purple-400 border border-purple-200 dark:border-white/10'
+                    : 'text-zinc-700 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-zinc-100 hover:bg-zinc-200/50 dark:hover:bg-white/5'
                 }`}
               >
-                <Icon className={`w-4 h-4 ${isActive ? 'text-purple-400' : 'text-zinc-400'}`} />
+                <Icon className={`w-4 h-4 ${isActive ? 'text-purple-700 dark:text-purple-400' : 'text-zinc-500 dark:text-zinc-400'}`} />
                 <span>{sec.label}</span>
               </button>
             );
@@ -222,12 +226,12 @@ export function SideDrawer({
 
         {/* Upgrade Card Banner */}
         {!profile.isPro && (
-          <div className="p-4 mx-4 mb-4 rounded-xl bg-gradient-to-br from-purple-900/40 to-blue-900/40 border border-purple-500/30">
+          <div className="p-4 mx-4 mb-4 rounded-xl bg-gradient-to-br from-purple-500/10 to-blue-500/10 dark:from-purple-900/40 dark:to-blue-900/40 border border-purple-300 dark:border-purple-500/30">
             <div className="flex items-center gap-2 mb-1.5">
-              <Crown className="w-4 h-4 text-purple-400" />
-              <h5 className="text-xs font-bold text-purple-300">UPGRADE TO PRO</h5>
+              <Crown className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+              <h5 className="text-xs font-black text-purple-700 dark:text-purple-300">UPGRADE TO PRO</h5>
             </div>
-            <p className="text-[10px] text-zinc-300 leading-relaxed mb-3">
+            <p className="text-[10px] text-zinc-700 dark:text-zinc-350 leading-relaxed mb-3">
               Unlock unlimited AI dynamic roadmaps, instant code analysis, and continuous mock assessments.
             </p>
             <button
@@ -235,7 +239,7 @@ export function SideDrawer({
                 onUpgradeClick();
                 onClose();
               }}
-              className="w-full py-1.5 font-bold text-xs rounded-lg text-center bg-white text-black hover:bg-zinc-200 transition-all cursor-pointer"
+              className="w-full py-1.5 font-bold text-xs rounded-lg text-center bg-purple-600 dark:bg-white text-white dark:text-black hover:bg-purple-705 dark:hover:bg-zinc-100 transition-all cursor-pointer"
             >
               Get Unlimited Access
             </button>
@@ -243,13 +247,13 @@ export function SideDrawer({
         )}
 
         {/* Drawer footer buttons */}
-        <div className="p-4 border-t border-zinc-800 space-y-1">
+        <div className="p-4 border-t border-zinc-200 dark:border-zinc-805 space-y-1 bg-zinc-100/40 dark:bg-zinc-950/15">
           <button
             onClick={() => {
               onTabChange('profile');
               onClose();
             }}
-            className="w-full flex items-center gap-3 px-4 py-2.5 text-xs font-semibold text-zinc-400 hover:text-white hover:bg-zinc-900/50 rounded-lg text-left"
+            className="w-full flex items-center gap-3 px-4 py-2.5 text-xs font-semibold text-zinc-700 dark:text-zinc-350 hover:text-zinc-950 dark:hover:text-white hover:bg-zinc-200/50 dark:hover:bg-zinc-100 rounded-lg text-left"
           >
             <Settings className="w-3.5 h-3.5 text-zinc-500" />
             <span>Settings Preferences</span>
@@ -259,10 +263,10 @@ export function SideDrawer({
               onLogoutClick();
               onClose();
             }}
-            className="w-full flex items-center gap-3 px-4 py-2.5 text-xs font-semibold text-rose-450 hover:text-white hover:bg-rose-500/10 rounded-lg text-left"
+            className="w-full flex items-center gap-3 px-4 py-2.5 text-xs font-semibold text-rose-600 dark:text-rose-450 hover:text-rose-900 dark:hover:text-white hover:bg-rose-500/10 rounded-lg text-left"
           >
             <LogOut className="w-3.5 h-3.5 text-rose-500" />
-            <span className="text-red-400">Bypass Logout</span>
+            <span className="text-rose-600 dark:text-red-400">Bypass Logout</span>
           </button>
         </div>
       </div>
